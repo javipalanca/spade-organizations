@@ -1,11 +1,8 @@
-from ast import Str
-from spade.message import MessageBase
-from spade.template import BaseTemplate
-from typing import List, Optional, Dict, Type
-import logging
 import json
-from aioxmpp import JID 
+import logging
+from typing import Optional, Dict
 
+from spade.template import BaseTemplate
 
 logger = logging.getLogger("spade.Message")
 
@@ -13,10 +10,10 @@ logger = logging.getLogger("spade.Message")
 class Rule(BaseTemplate):
 
     def __init__(self,
-        sender_role: Optional[str] = None,
-        reciever_role: Optional[str] = None,
-        metadata: Optional[dict] = None,
-        body: Optional[str] = None):
+                 sender_role: Optional[str] = None,
+                 reciever_role: Optional[str] = None,
+                 metadata: Optional[dict] = None,
+                 body: Optional[str] = None):
 
         self.__sender_role = sender_role
         self.__reciever_role = reciever_role
@@ -24,50 +21,52 @@ class Rule(BaseTemplate):
         self.__body = body
 
         # if all are null -> disallow
-        if(not (self.__reciever_role or self.__sender_role or self.__metadata or self.__body)):
-            raise Exception("Attention!:This rule {} is inconsistent".format(self))
+        if not (self.__reciever_role or self.__sender_role or self.__metadata or self.__body):
+            raise Exception("Warning!:This rule {} is inconsistent".format(self))
 
         # check type errors
-        if (self.__sender_role and not isinstance(self.__sender_role, str)): 
-            raise TypeError("Attention!: The sender_role MUST be a string")
-        if (self.__reciever_role and not isinstance(self.__reciever_role, str)): 
-            raise TypeError("Attention!: The reciever_role MUST be a string")
-        if (self.__body and not isinstance(self.__body, str)): 
-            raise TypeError("Attention!: The body MUST be a string")
-        if (self.__metadata and not (isinstance(self.__metadata, dict) 
-        and all(isinstance(k, str) for k in self.__metadata.keys())
-        and all(isinstance(v, str) for v in self.__metadata.values()))):
-            raise TypeError("Attention!: The metadata MUST be a Dict[str,str]")
-
-        
+        if self.__sender_role and not isinstance(self.__sender_role, str):
+            raise TypeError("Warning!: The sender_role MUST be a string")
+        if self.__reciever_role and not isinstance(self.__reciever_role, str):
+            raise TypeError("Warning!: The reciever_role MUST be a string")
+        if self.__body and not isinstance(self.__body, str):
+            raise TypeError("Warning!: The body MUST be a string")
+        if (self.__metadata and not (isinstance(self.__metadata, dict)
+                                     and all(isinstance(k, str) for k in self.__metadata.keys())
+                                     and all(isinstance(v, str) for v in self.__metadata.values()))):
+            raise TypeError("Warning!: The metadata MUST be a Dict[str,str]")
 
     @property
     def sender_role(self):
-        return self.__sender_role   
+        return self.__sender_role
 
     @property
     def reciever_role(self):
-        return self.__reciever_role 
+        return self.__reciever_role
 
     @property
     def metadata(self):
-        return self.__metadata 
+        return self.__metadata
 
     @property
     def body(self):
-        return self.__body   
-    
+        return self.__body
+
     def __eq__(self, other) -> bool:
-        if(self.__sender_role != other.sender_role ): return False
-        if(self.__reciever_role != other.reciever_role ): return False
-        if(self.__metadata != other.metadata ): return False
-        if(self.__body != other.body ): return False
+        if self.__sender_role != other.sender_role:
+            return False
+        if self.__reciever_role != other.reciever_role:
+            return False
+        if self.__metadata != other.metadata:
+            return False
+        if self.__body != other.body:
+            return False
 
         return True
 
-
     def toJSON(self):
-        return {"sender_role": self.sender_role, "reciever_role": self.reciever_role,"metadata": self.metadata, "body": self.body}
+        return {"sender_role": self.sender_role, "reciever_role": self.reciever_role, "metadata": self.metadata,
+                "body": self.body}
 
     @staticmethod
     def fromJSON(json_dict: Dict):
@@ -95,11 +94,10 @@ class Rule(BaseTemplate):
 
         return True
 
-
     def match_metadata(self, metadata):
-        if(len(self.__metadata) != len(metadata)):
+        if len(self.__metadata) != len(metadata):
             return False
 
-        shared_items = {key: metadata[key] for key in metadata if key in self.__metadata and metadata[key] == self.__metadata[key]}
-        return (len(shared_items) == len(metadata))
-        
+        shared_items = {key: metadata[key] for key in metadata if
+                        key in self.__metadata and metadata[key] == self.__metadata[key]}
+        return len(shared_items) == len(metadata)
